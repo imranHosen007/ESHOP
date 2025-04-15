@@ -7,7 +7,7 @@ import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import { TfiGallery } from "react-icons/tfi";
 import { format } from "timeago.js";
 import socketIo from "socket.io-client";
-const ENDPOINT = "http://localhost:4000";
+const ENDPOINT = "https://eshop-socket-py0j.onrender.com/";
 const socketId = socketIo(ENDPOINT, { transports: ["websocket"] });
 const Inbox = () => {
   const { user } = useSelector((store) => store.user);
