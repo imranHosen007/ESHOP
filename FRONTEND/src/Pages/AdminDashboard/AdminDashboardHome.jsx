@@ -15,12 +15,11 @@ import { GrWorkshop } from "react-icons/gr";
 
 const AdminDashboardHome = () => {
   const dispatch = useDispatch();
-
-  const { allProduct } = useSelector(store => store.product);
-  const { allSeller } = useSelector(store => store.seller);
-  const { allUser } = useSelector(store => store.user);
-  const { allEvent } = useSelector(store => store.event);
-  const { AllOrder } = useSelector(store => store.order);
+  const { allProduct } = useSelector((store) => store.product);
+  const { allSeller } = useSelector((store) => store.seller);
+  const { allUser } = useSelector((store) => store.user);
+  const { allEvent } = useSelector((store) => store.event);
+  const { AllOrder } = useSelector((store) => store.order);
 
   useEffect(() => {
     dispatch(getAllProducts());

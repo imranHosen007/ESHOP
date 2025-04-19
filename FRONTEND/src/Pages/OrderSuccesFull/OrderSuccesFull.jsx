@@ -16,7 +16,6 @@ const OrderSuccesFull = () => {
     <div className="w-full  bg-[#f6f9fc]">
       <CheckOutStep active={3} />
       <div>
-        {" "}
         <Lottie options={defaultOptions} width={300} height={200} />{" "}
         <div className="flex flex-col items-center justify-center max-w-2xl pb-6 mx-auto space-y-4">
           {" "}

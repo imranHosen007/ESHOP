@@ -3,8 +3,15 @@ import EventCard from "./EventCard";
 import { useSelector } from "react-redux";
 
 const Event = () => {
-  const { allEvent } = useSelector(store => store.event);
+  const { allEvent, isLoading } = useSelector((store) => store.event);
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
   return (
     <div>
       <div className="section">

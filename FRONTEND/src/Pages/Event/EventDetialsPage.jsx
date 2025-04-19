@@ -5,14 +5,22 @@ import SingleProductDeatils from "../../Components/SingleProduct/SingleProductDe
 import SuggestProducts from "../../Components/SingleProduct/SuggestProducts";
 
 const EventDetialsPage = () => {
-  const { allEvent } = useSelector(store => store.event);
+  const { allEvent, isLoading } = useSelector((store) => store.event);
   const { id } = useParams();
   const [data, setData] = useState([]);
   useEffect(() => {
-    const data = allEvent.find(item => item._id == id);
+    const data = allEvent.find((item) => item._id == id);
     setData(data);
     scroll(0, 0);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
   return (
     <div>
       <SingleProductDeatils data={data} />

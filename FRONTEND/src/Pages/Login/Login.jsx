@@ -6,19 +6,24 @@ import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 const Login = () => {
-  const { isLoading, isAtuhenticated } = useSelector(store => store.user);
+  const { isLoading, isAtuhenticated } = useSelector((store) => store.user);
   const axiosPublic = useAxiosPublic();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleSubmit = e => {
+  // -------Handle-Login------
+
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setButtonLoading(true);
 
     axiosPublic
       .post(`/user/login`, { email, password }, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res.data.success === true) {
           Swal.fire({
             position: "top-center",
@@ -27,6 +32,7 @@ const Login = () => {
             showConfirmButton: false,
             timer: 1500,
           });
+          setButtonLoading(false);
           setEmail("");
           setPassword("");
         }
@@ -34,7 +40,8 @@ const Login = () => {
         window.location.reload(true);
         navigate("/");
       })
-      .catch(error => {
+      .catch((error) => {
+        setButtonLoading(false);
         toast.error(error.response.data.message);
       });
   };
@@ -61,7 +68,7 @@ const Login = () => {
                 <input
                   name="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   id="email"
                   autoComplete="email"
@@ -81,7 +88,7 @@ const Login = () => {
                 <input
                   name="password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   type={visible ? "text" : "password"}
                   id="Password"
                   autoComplete="Password"
@@ -130,10 +137,15 @@ const Login = () => {
             </div>
             <div>
               <button
+                disabled={buttonLoading}
                 type="submit"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed"
               >
-                Submit
+                {buttonLoading ? (
+                  <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
             <div className="flex items-center w-full">

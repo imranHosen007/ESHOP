@@ -40,6 +40,13 @@ const ShopPreview = () => {
 
   const averageRating = totalRatings / totalReviewsLength || 0;
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
   return (
     <div className="section  bg-[#f5f5f5]">
       <div className="flex justify-between w-full py-10">

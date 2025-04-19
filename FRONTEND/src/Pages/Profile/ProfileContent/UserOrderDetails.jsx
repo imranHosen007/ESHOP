@@ -9,9 +9,11 @@ import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import { toast, ToastContainer } from "react-toastify";
 const UserOrderDetails = () => {
-  const { user } = useSelector(store => store.user);
-  const { order } = useSelector(store => store.order);
+  const { user } = useSelector((store) => store.user);
+  const { order } = useSelector((store) => store.order);
   const { id } = useParams();
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [refundLoading, setRefundLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [data, setData] = useState("");
   const dispatch = useDispatch();
@@ -23,6 +25,7 @@ const UserOrderDetails = () => {
   // -HandleReview-
 
   const handleReview = () => {
+    setReviewLoading(true);
     const reviewData = {
       user,
       rating,
@@ -33,37 +36,47 @@ const UserOrderDetails = () => {
 
     axiosPublic
       .post("/product/review", reviewData, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res?.data?.success) {
+          setReviewLoading(false);
           toast.success(res.data.message);
           setComment("");
           setRating(1);
           setOpen(false);
         }
       })
-      .catch(error => toast.error(error));
+      .catch((error) => {
+        setReviewLoading(false);
+        toast.error(error.response.data.message);
+      });
   };
   // -Handle-Refund----
   const handleRefund = () => {
+    setRefundLoading(true);
     axiosPublic
       .put(
         `/order/refund/${id}`,
         { status: "Processing refund" },
         { withCredentials: true }
       )
-      .then(res => {
+      .then((res) => {
         if (res.data.success) {
+          setRefundLoading(false);
           toast.success(res.data.message);
           dispatch(getUserOrder(user._id));
         }
       })
-      .catch(toast.error(error));
+      .catch((error) => {
+        setRefundLoading(true);
+        toast.error(error.response.data.message);
+      });
   };
   useEffect(() => {
     dispatch(getUserOrder(user._id));
-    const findData = order.find(item => item._id === id);
+    const findData = order.find((item) => item._id === id);
     setData(findData);
   }, [dispatch]);
+
   return (
     <div className="min-h-screen py-4 section">
       <ToastContainer />
@@ -99,7 +112,7 @@ const UserOrderDetails = () => {
             </div>
             {data?.status === "Delivered" && (
               <button
-                onClick={e => setOpen(!open) || setSelectedItem(item)}
+                onClick={(e) => setOpen(!open) || setSelectedItem(item)}
                 className="btn text-white"
               >
                 Write a review
@@ -175,15 +188,20 @@ const UserOrderDetails = () => {
                 rows="5"
                 placeholder="How was your product? write your expresion about it!"
                 className="mt-2 w-[95%] border p-2 outline-none"
-                onChange={e => setComment(e.target.value)}
+                onChange={(e) => setComment(e.target.value)}
                 id="com"
               ></textarea>
             </div>
             <button
+              disabled={reviewLoading}
               onClick={handleReview}
-              className="btn   text-white text-[20px] ml-3"
+              className="btn !disabled:cursor-not-allowed   text-white text-[20px] ml-3"
             >
-              Sumbit
+              {reviewLoading ? (
+                <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </div>
@@ -215,8 +233,16 @@ const UserOrderDetails = () => {
           </h4>
           {data?.paymentInfo?.status === "Succeeded" ||
             (data?.paymentInfo?.status === "succeeded" && (
-              <button onClick={handleRefund} className="btn text-white">
-                Give Me Refund
+              <button
+                disabled={refundLoading}
+                onClick={handleRefund}
+                className="btn !disabled:cursor-not-allowed text-white"
+              >
+                {refundLoading ? (
+                  <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+                ) : (
+                  "Give Refund"
+                )}
               </button>
             ))}
         </div>

@@ -9,18 +9,19 @@ import { FaArrowRight } from "react-icons/fa";
 
 const ShopDashboard = () => {
   const dispatch = useDispatch();
-  const { product } = useSelector(store => store.product);
-  const { seller } = useSelector(store => store.seller);
-  const { allOrder } = useSelector(store => store.order);
+  const { product } = useSelector((store) => store.product);
+  const { seller } = useSelector((store) => store.seller);
+  const { allOrder } = useSelector((store) => store.order);
 
   useEffect(() => {
     dispatch(shopGetProducts(seller._id));
     dispatch(getOrderByShop(seller._id));
   }, [dispatch]);
+
   return (
     <div className="p-8">
       <h3 className="text-[22px] font-Poppins pb-2">Overview</h3>
-      <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-10">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 sm:grid-cols-2">
         <div className=" sm:min-h-[20vh] bg-white shadow rounded px-2 py-5">
           <div className="flex items-center">
             <AiOutlineMoneyCollect
@@ -80,7 +81,7 @@ const ShopDashboard = () => {
       {/* -Latest-Order------ */}
       <h3 className="text-[22px] font-Poppins pb-2 mt-10">Latest 5 Orders</h3>
       <div className="w-full px-6">
-        <div className="mb-4 overflow-x-auto bg-white 0 border border-black rounded ">
+        <div className="mb-4 overflow-x-auto bg-white border border-black rounded 0 ">
           <table className="w-full text-sm text-left">
             <thead className="">
               <tr>
@@ -96,7 +97,7 @@ const ShopDashboard = () => {
                 <tr>
                   <td
                     colSpan={"5"}
-                    className="mt-5 text-2xl font-bold text-center pb-2"
+                    className="pb-2 mt-5 text-2xl font-bold text-center"
                   >
                     Currently Not Order Found
                   </td>

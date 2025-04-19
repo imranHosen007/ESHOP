@@ -20,9 +20,10 @@ const SingleProductDeatils = ({ data }) => {
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
   const [select, setSelect] = useState(0);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const axiosPublic = useAxiosPublic();
-  const { user, isAtuhenticated } = useSelector(store => store.user);
-  const { wishlist } = useSelector(store => store.wishlist);
+  const { user, isAtuhenticated } = useSelector((store) => store.user);
+  const { wishlist } = useSelector((store) => store.wishlist);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,11 +40,15 @@ const SingleProductDeatils = ({ data }) => {
     setCount(count + 1);
   };
 
-  const addToCartHandler = item => {
+  // ------Add-to--Cart-----
+  const addToCartHandler = (item) => {
+    setButtonLoading(true);
     if (isAtuhenticated === false) {
+      setButtonLoading(false);
       return navigate("/login");
     }
     if (item.stock <= item.quantity) {
+      setButtonLoading(false);
       return toast.error("Product stock limited!", {
         position: "top-center",
       });
@@ -59,19 +64,21 @@ const SingleProductDeatils = ({ data }) => {
     };
     axiosPublic
       .post(`/cart`, cartData, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res?.data) {
+          setButtonLoading(false);
           dispatch(addToCart(res?.data?.cartData));
           alert("Item added to cart successfully!");
         }
       })
-      .catch(error => {
+      .catch((error) => {
+        setButtonLoading(false);
         return toast.error(error?.response?.data?.message);
       });
   };
 
   // Add-to-wishlitst
-  const handleAddtoWishlst = item => {
+  const handleAddtoWishlst = (item) => {
     setClick(!click);
 
     if (isAtuhenticated === false) {
@@ -89,21 +96,24 @@ const SingleProductDeatils = ({ data }) => {
     };
     axiosPublic
       .post(`/wishlist`, wishlistData, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res?.data) {
           dispatch(addToWishlist(res?.data?.wishlistData));
           alert("Item added to Wishlist successfully!");
         }
       })
-      .catch(error => {
+      .catch((error) => {
         return toast.error(error?.response?.data?.message);
       });
   };
-  const hanldeRemoveFromWishlist = id => {
+
+  // ------Remove-From-Wishlist-----
+
+  const hanldeRemoveFromWishlist = (id) => {
     setClick(!click);
     axiosPublic
       .delete(`/wishlist/${id}`, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res.data.success == true) {
           dispatch(removeFromWishlit(id));
           return toast.error("Proudct Remove to Wishlist successfully!", {
@@ -111,7 +121,7 @@ const SingleProductDeatils = ({ data }) => {
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         toast.error(error?.response?.data?.message, { position: "top-center" });
       });
   };
@@ -130,17 +140,19 @@ const SingleProductDeatils = ({ data }) => {
         { groupTitle, userId, sellerId },
         { withCredentials: true }
       )
-      .then(res => {
+      .then((res) => {
         if (res.data.success) {
           return navigate(`/inbox`);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         toast.error(error?.response?.data?.message, { position: "top-center" });
       });
   };
+
+  // -----Find-Wishlist-----
   useEffect(() => {
-    const findWishlist = wishlist.find(i => {
+    const findWishlist = wishlist.find((i) => {
       return i.productId === data._id;
     });
 
@@ -252,15 +264,20 @@ const SingleProductDeatils = ({ data }) => {
                       />
                     )}
                   </div>
-                  <div
+                  <button
+                    disabled={buttonLoading}
                     onClick={() => addToCartHandler(data)}
-                    className="btn !mt-6 !rounded !h-11 flex items-center"
+                    className="btn !mt-6 !rounded !h-11 flex items-center !disabled:cursor-not-allowed"
                   >
                     {" "}
-                    <span className="flex items-center text-white">
-                      Add to cart <AiOutlineShoppingCart className="ml-1" />
-                    </span>
-                  </div>
+                    {buttonLoading ? (
+                      <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                    ) : (
+                      <span className="flex items-center text-white">
+                        Add to cart <AiOutlineShoppingCart className="ml-1" />
+                      </span>
+                    )}
+                  </button>
                   <div className="flex items-center pt-8">
                     <div>
                       <Link to={`/shop/preview/${data?.shop?._id}`}>

@@ -14,6 +14,8 @@ const DiscountCodes = () => {
   const { seller } = useSelector((store) => store.seller);
   const dispatch = useDispatch();
   const axiosPublic = useAxiosPublic();
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState([]);
   const {
@@ -24,6 +26,7 @@ const DiscountCodes = () => {
   } = useForm();
 
   const onSumbitHandler = (data) => {
+    setButtonLoading(true);
     const couponData = {
       name: data.name,
       minAmount: data.minAmount,
@@ -39,15 +42,20 @@ const DiscountCodes = () => {
       })
       .then((res) => {
         if (res.data.success === true) {
+          setButtonLoading(false);
           toast.success(`Coupon code created successfully!`);
           setOpen(false);
           reset();
         }
       })
-      .catch((error) => toast.error(error.response.data.message));
+      .catch((error) => {
+        setButtonLoading(false);
+        toast.error(error.response.data.message);
+      });
   };
   // ----HandleDelete-----
   const handleDelete = (id) => {
+    setDeleteLoading(true);
     Swal.fire({
       title: "Are you sure?",
       icon: "warning",
@@ -63,6 +71,7 @@ const DiscountCodes = () => {
           })
           .then((res) => {
             if (res.data.success === true) {
+              setDeleteLoading(false);
               const updatedCouponCode = couponCode.filter((coupon) => {
                 return coupon._id !== id;
               });
@@ -70,7 +79,10 @@ const DiscountCodes = () => {
               toast.success(res.data.message);
             }
           })
-          .catch((error) => toast.error(error.response.data.message));
+          .catch((error) => {
+            setDeleteLoading(false);
+            toast.error(error.response.data.message);
+          });
       }
     });
   };
@@ -94,7 +106,11 @@ const DiscountCodes = () => {
   }, [couponCode]);
 
   if (isLoading || loading) {
-    return <Loader />;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
   return (
@@ -148,7 +164,10 @@ const DiscountCodes = () => {
                       </td>
 
                       <td className="px-4 py-4 max-w-6 whitespace-nowrap">
-                        <button onClick={() => handleDelete(item._id)}>
+                        <button
+                          disabled={deleteLoading}
+                          onClick={() => handleDelete(item._id)}
+                        >
                           <AiOutlineDelete size={20} />
                         </button>
                       </td>
@@ -253,8 +272,16 @@ const DiscountCodes = () => {
                 </select>
               </div>
               <div>
-                <button className="crateInput" type="submit">
-                  Create
+                <button
+                  disabled={buttonLoading}
+                  className="crateInput disabled:cursor-not-allowed"
+                  type="submit"
+                >
+                  {buttonLoading ? (
+                    <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                  ) : (
+                    " Create"
+                  )}
                 </button>
               </div>
             </form>

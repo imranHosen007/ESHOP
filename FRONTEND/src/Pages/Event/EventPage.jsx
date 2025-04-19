@@ -3,7 +3,7 @@ import EventCard from "../Home/Event/EventCard";
 import { useSelector } from "react-redux";
 
 const EventPage = () => {
-  const { allEvent } = useSelector(store => store.event);
+  const { allEvent } = useSelector((store) => store.event);
 
   return (
     <div>

@@ -9,6 +9,8 @@ import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
 import { addNewAddress, removeAddress } from "../../../Redux/Slice/UserSlice";
 const AddAdress = () => {
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const { user } = useSelector((store) => store.user);
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState("");
@@ -34,8 +36,10 @@ const AddAdress = () => {
   ];
 
   const onSubmitHandle = (data) => {
+    setButtonLoading(true);
     if (addressTypeData == "" || data.country == "" || data.city == "") {
       toast.error("Please fill all the fields!");
+      setButtonLoading(false);
     }
 
     const newAddress = {
@@ -60,6 +64,7 @@ const AddAdress = () => {
           .put(`/user/update-address`, newAddress, { withCredentials: true })
           .then((res) => {
             if (res.data.success === true) {
+              setButtonLoading(false);
               dispatch(addNewAddress(res?.data?.user.addresses.slice(-1)[0]));
               Swal.fire({
                 title: "Done",
@@ -73,13 +78,17 @@ const AddAdress = () => {
             }
           })
           .catch((error) => {
+            setButtonLoading(false);
             return toast.error(error.response.data.message);
           });
       }
     });
   };
 
+  // ------Handle-Delete----
+
   const handleDelete = (id) => {
+    setDeleteLoading(true);
     Swal.fire({
       title: "Are you sure?",
       text: "Delete This Address",
@@ -94,6 +103,7 @@ const AddAdress = () => {
           .delete(`/user/delete-address/${id}`, { withCredentials: true })
           .then((res) => {
             if (res.data.success === true) {
+              setDeleteLoading(false);
               dispatch(removeAddress(id));
               Swal.fire({
                 text: "Delete Address SuccesFull!",
@@ -104,6 +114,7 @@ const AddAdress = () => {
             }
           })
           .catch((error) => {
+            setDeleteLoading(false);
             return toast.error(error.response.data.message);
           });
       }
@@ -250,10 +261,15 @@ const AddAdress = () => {
                     </select>
                   </div>
                   <button
+                    disabled={buttonLoading}
                     type="sumbit"
-                    className="mt-5 duration-300 cursor-pointer formInput hover:bg-cyan-400 hover:text-white"
+                    className="mt-5 duration-300 cursor-pointer formInput hover:bg-cyan-400 hover:text-white disabled:cursor-not-allowed"
                   >
-                    Submit
+                    {buttonLoading ? (
+                      <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+                    ) : (
+                      "Add"
+                    )}
                   </button>
                 </div>
               </form>
@@ -290,11 +306,15 @@ const AddAdress = () => {
                   {item?.zipCode}
                 </h6>
                 <div className="pl-8 ">
-                  <AiOutlineDelete
-                    className="cursor-pointer"
-                    size={25}
-                    onClick={() => handleDelete(item._id)}
-                  />
+                  {deleteLoading ? (
+                    <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+                  ) : (
+                    <AiOutlineDelete
+                      className="cursor-pointer"
+                      size={25}
+                      onClick={() => handleDelete(item._id)}
+                    />
+                  )}
                 </div>
               </div>
             );

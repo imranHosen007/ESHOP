@@ -12,15 +12,16 @@ import {
 } from "../../Redux/Slice/CartSlice";
 
 const Cart = ({ setOpenCart }) => {
-  const { cart } = useSelector(store => store.cart);
-
+  const { cart } = useSelector((store) => store.cart);
   const axiosPublic = useAxiosPublic();
   const dispatch = useDispatch();
 
-  const handleRemoveFromCart = id => {
+  // -------Handle-Remove-Cart-----
+
+  const handleRemoveFromCart = (id) => {
     axiosPublic
       .delete(`/cart/${id}`, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res.data.success == true) {
           dispatch(removeFromCart(id));
           return toast.error("Proudct Remove to cart successfully!", {
@@ -28,39 +29,45 @@ const Cart = ({ setOpenCart }) => {
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         toast.error(error?.response?.data?.message, { position: "top-center" });
       });
   };
-  const handleIcrement = item => {
+
+  // -----Handle-Increment-----
+
+  const handleIcrement = (item) => {
     const quantity = { quantity: item.quantity + 1 };
     if (item.stock <= item.quantity) {
       return alert("Product stock limited!");
     }
     axiosPublic
       .put(`/cart/${item._id}`, quantity, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res?.data) {
           dispatch(
             valueChangeFromCart({ id: item._id, quantity: item.quantity + 1 })
           );
         }
       })
-      .catch(error => toast.error(error.response.data.message));
+      .catch((error) => toast.error(error.response.data.message));
   };
-  const handleDecremnt = item => {
+
+  // -----Handle-Decremnt------
+
+  const handleDecremnt = (item) => {
     const quantity = { quantity: item.quantity - 1 };
     if (item.quantity > 1) {
       axiosPublic
         .put(`/cart/${item._id}`, quantity, { withCredentials: true })
-        .then(res => {
+        .then((res) => {
           if (res?.data) {
             dispatch(
               valueChangeFromCart({ id: item._id, quantity: item.quantity - 1 })
             );
           }
         })
-        .catch(error => toast.error(error.response.data.message));
+        .catch((error) => toast.error(error.response.data.message));
     }
   };
 

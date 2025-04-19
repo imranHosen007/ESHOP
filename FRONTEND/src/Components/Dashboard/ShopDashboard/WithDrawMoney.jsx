@@ -9,18 +9,21 @@ import { getFetchSeller } from "../../../Redux/Api/SellerApi";
 const WithDrawMoney = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const { seller } = useSelector(store => store.seller);
+  const { seller } = useSelector((store) => store.seller);
   const { register, handleSubmit, reset } = useForm();
   const [paymentMethod, setPaymentMethod] = useState(false);
   const axiosPublic = useAxiosPublic();
   const [withdrawAmount, setWithdrawAmount] = useState(50);
-
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [withdrawLoading, setWithdrawLoading] = useState(false);
   const availableBalance = seller?.availableBalance.toFixed(2);
   const error = () => {
     toast.error("You not have enough balance to withdraw!");
   };
   // handle-Submit-From
-  const onsubmitHandle = data => {
+  const onsubmitHandle = (data) => {
+    setButtonLoading(true);
     const withdrawMethod = {
       bankName: data.bankName,
       bankCountry: data.bankCountry,
@@ -33,34 +36,43 @@ const WithDrawMoney = () => {
       .put(`/shop/updated-payment-method`, withdrawMethod, {
         withCredentials: true,
       })
-      .then(res => {
+      .then((res) => {
         if (res.data.success) {
+          setButtonLoading(false);
           alert("Withdraw method added successfully!");
           setPaymentMethod(false);
           reset();
           dispatch(getFetchSeller());
         }
       })
-      .catch(error => toast.error(error.response.data.message));
+      .catch((error) => {
+        setButtonLoading(false);
+        toast.error(error.response.data.message);
+      });
   };
   // ---HandleDelte--
   const handleDelte = () => {
+    setDeleteLoading(true);
     axiosPublic
       .delete(`/shop/delete/payment-method`, {
         withCredentials: true,
       })
-      .then(res => {
+      .then((res) => {
         if (res.data.success) {
+          setDeleteLoading(false);
           alert("Withdraw method Delete successfully!");
-
           dispatch(getFetchSeller());
         }
       })
-      .catch(error => toast.error(error.response.data.message));
+      .catch((error) => {
+        setDeleteLoading(false);
+        toast.error(error.response.data.message);
+      });
   };
 
   // ---Handle-Withdraw---
   const withdrawHandler = () => {
+    setWithdrawLoading(true);
     if (withdrawAmount < 50 || Number(withdrawAmount) > availableBalance) {
       toast.error("You can't withdraw this amount!");
     } else {
@@ -70,14 +82,17 @@ const WithDrawMoney = () => {
           { amount: withdrawAmount, seller: seller },
           { withCredentials: true }
         )
-        .then(res => {
+        .then((res) => {
           if (res.data.success) {
-            alert("Withdraw Money Requestsuccessfully!");
-
+            setWithdrawLoading(false);
+            alert("Withdraw Money Request Successfully!");
             dispatch(getFetchSeller());
           }
         })
-        .catch(error => toast.error(error.response.data.message));
+        .catch((error) => {
+          setWithdrawLoading(false);
+          toast.error(error.response.data.message);
+        });
     }
   };
 
@@ -85,7 +100,7 @@ const WithDrawMoney = () => {
     <div>
       <div className="w-full h-[90vh] p-8">
         <ToastContainer />
-        <div className="w-full bg-white h-full rounded flex items-center justify-center flex-col">
+        <div className="flex flex-col items-center justify-center w-full h-full bg-white rounded">
           <h5 className="text-[20px] pb-4">
             Available Balance: ${availableBalance}
           </h5>
@@ -102,7 +117,7 @@ const WithDrawMoney = () => {
               className={`w-[95%] md:w-[50%] bg-white shadow rounded   min-h-[40vh] p-3`}
             >
               {" "}
-              <div className="w-full flex justify-end">
+              <div className="flex justify-end w-full">
                 <RxCross1
                   size={25}
                   onClick={() => setOpen(false) || setPaymentMethod(false)}
@@ -194,8 +209,16 @@ const WithDrawMoney = () => {
                         className={`formInput mt-2`}
                       />
                     </div>{" "}
-                    <button type="submit" className=" mb-3 text-white btn">
-                      Add
+                    <button
+                      disabled={buttonLoading}
+                      type="submit"
+                      className="mb-3 text-white disabled:cursor-not-allowed btn"
+                    >
+                      {buttonLoading ? (
+                        <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                      ) : (
+                        "Add"
+                      )}
                     </button>
                   </form>{" "}
                 </div>
@@ -206,7 +229,7 @@ const WithDrawMoney = () => {
                   </h3>
                   {seller && seller?.withdrawMethod ? (
                     <div>
-                      <div className="md:flex w-full justify-between items-center">
+                      <div className="items-center justify-between w-full md:flex">
                         <div className="md:w-[50%]">
                           <h5>
                             Account Number:
@@ -221,29 +244,36 @@ const WithDrawMoney = () => {
                           <h5>Bank Name: {seller?.withdrawMethod.bankName}</h5>
                         </div>
                         <div className="md:w-[50%]">
-                          <AiOutlineDelete
+                          <button
+                            disabled={deleteLoading}
                             onClick={handleDelte}
-                            size={25}
-                            className="cursor-pointer"
-                          />
+                            className="cursor-pointer disabled:cursor-not-allowed"
+                          >
+                            <AiOutlineDelete size={25} />
+                          </button>
                         </div>
                       </div>
                       <br />
                       <h4>Available Balance: ${availableBalance}</h4>
                       <br />
-                      <div className="md:flex w-full items-center">
+                      <div className="items-center w-full md:flex">
                         <input
                           type="number"
                           placeholder="Amount..."
                           value={withdrawAmount}
-                          onChange={e => setWithdrawAmount(e.target.value)}
+                          onChange={(e) => setWithdrawAmount(e.target.value)}
                           className="md:w-[100px] w-[full] border md:mr-3 p-1 rounded"
                         />
                         <button
-                          className={`btn !h-[42px] text-white`}
+                          disabled={withdrawLoading}
+                          className={`btn !h-[42px] disabled:cursor-not-allowed text-white`}
                           onClick={withdrawHandler}
                         >
-                          Withdraw
+                          {withdrawLoading ? (
+                            <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                          ) : (
+                            " Withdraw"
+                          )}
                         </button>
                       </div>
                     </div>

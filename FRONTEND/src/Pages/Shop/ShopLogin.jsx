@@ -6,20 +6,23 @@ import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 const ShopLogin = () => {
-  const { seller, isSeller, loading } = useSelector(store => store.seller);
+  const { seller, isSeller, loading } = useSelector((store) => store.seller);
   const axiosPublic = useAxiosPublic();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
+    setButtonLoading(true);
     e.preventDefault();
 
     axiosPublic
       .post(`/shop/login`, { email, password }, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res.data.success === true) {
+          setButtonLoading(false);
           Swal.fire({
             position: "top-center",
             icon: "success",
@@ -33,7 +36,8 @@ const ShopLogin = () => {
           window.location.reload(true);
         }
       })
-      .catch(error => {
+      .catch((error) => {
+        setButtonLoading(false);
         toast.error(error.response.data.message);
       });
   };
@@ -65,7 +69,7 @@ const ShopLogin = () => {
                 <input
                   name="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   id="email"
                   autoComplete="email"
@@ -85,7 +89,7 @@ const ShopLogin = () => {
                 <input
                   name="password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   type={visible ? "text" : "password"}
                   id="Password"
                   autoComplete="Password"
@@ -134,10 +138,15 @@ const ShopLogin = () => {
             </div>
             <div>
               <button
+                disabled={buttonLoading}
                 type="submit"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed"
               >
-                Submit
+                {buttonLoading ? (
+                  <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                ) : (
+                  "Shop Login"
+                )}
               </button>
             </div>
             <div className="flex items-center w-full">

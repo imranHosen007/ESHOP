@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUserOrder } from "../../../Redux/Api/OrderApi";
 
 const AllOrder = () => {
-  const { user } = useSelector(store => store.user);
-  const { order } = useSelector(store => store.order);
+  const { user } = useSelector((store) => store.user);
+  const { order, isLoading } = useSelector((store) => store.order);
   const dispatch = useDispatch();
   // ------Pagination---------
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +40,13 @@ const AllOrder = () => {
     dispatch(getUserOrder(user._id));
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
   return (
     <>
       <div>

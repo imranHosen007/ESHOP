@@ -17,15 +17,17 @@ import { FaEdit } from "react-icons/fa";
 
 const AllEvent = () => {
   const dispatch = useDispatch();
-  const { event, isLoading } = useSelector(store => store.event);
-  const { seller } = useSelector(store => store.seller);
+  const { event, isLoading } = useSelector((store) => store.event);
+  const { seller } = useSelector((store) => store.seller);
   const axiosPublic = useAxiosPublic();
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     dispatch(getShopEvent(seller._id));
   }, [dispatch]);
 
-  const handleDelete = id => {
+  const handleDelete = (id) => {
+    setDeleteLoading(true);
     Swal.fire({
       title: "Are you sure?",
       text: "Delete This Event",
@@ -34,12 +36,13 @@ const AllEvent = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then(result => {
+    }).then((result) => {
       if (result.isConfirmed) {
         axiosPublic
           .delete(`/event/${id}`)
-          .then(res => {
+          .then((res) => {
             if (res.data.success === true) {
+              setDeleteLoading(false);
               dispatch(deleteEvent(id));
 
               Swal.fire({
@@ -49,7 +52,10 @@ const AllEvent = () => {
               });
             }
           })
-          .catch(error => toast.error(error.response.data.message));
+          .catch((error) => {
+            setDeleteLoading(false);
+            toast.error(error.response.data.message);
+          });
       }
     });
   };
@@ -75,8 +81,13 @@ const AllEvent = () => {
       setCurrentPage(currentPage + 1);
     }
   };
+
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
   }
   return (
     <div className="flex justify-center p-4">
@@ -99,7 +110,7 @@ const AllEvent = () => {
                 <tr>
                   <td
                     colSpan={"7"}
-                    className="mt-5 text-2xl py-10 font-bold text-center"
+                    className="py-10 mt-5 text-2xl font-bold text-center"
                   >
                     Currently Not Evnet Found
                   </td>
@@ -114,7 +125,7 @@ const AllEvent = () => {
                       <td className="px-4 py-4 whitespace-nowrap">
                         {index + 1}
                       </td>
-                      <td className="px-4 py-4  whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         {item.name.length > 40
                           ? item.name.slice(0, 40) + "..."
                           : item.name}
@@ -122,10 +133,10 @@ const AllEvent = () => {
                       <td className="px-4 py-4 whitespace-nowrap">
                         {item.discountPrice}
                       </td>
-                      <td className="px-4 py-4  whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         {item.stock}
                       </td>
-                      <td className="px-4 py-4  whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         {item.sold_out}
                       </td>
                       <td className="px-4 py-4 0 whitespace-nowrap">
@@ -136,7 +147,10 @@ const AllEvent = () => {
                         </Link>
                       </td>
                       <td className="px-4 py-4 md:px-0 whitespace-nowrap">
-                        <button onClick={() => handleDelete(item._id)}>
+                        <button
+                          disabled={deleteLoading}
+                          onClick={() => handleDelete(item._id)}
+                        >
                           <AiOutlineDelete size={20} />
                         </button>
                       </td>

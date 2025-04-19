@@ -12,15 +12,16 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { getFetchSeller } from "../../../Redux/Api/SellerApi";
 const Settings = () => {
-  const { seller } = useSelector(store => store.seller);
+  const { seller } = useSelector((store) => store.seller);
   const { register, handleSubmit } = useForm();
   const [visible, setVisible] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
+  const [buttonLoading, setButtonLoading] = useState(false);
   const dispatch = useDispatch();
   // ---Handle-Image-Change--
-  const handleImageChange = e => {
+  const handleImageChange = (e) => {
     const reader = new FileReader();
     reader.onload = () => {
       if (reader.readyState === 2) {
@@ -31,18 +32,20 @@ const Settings = () => {
             { avatar: reader.result },
             { withCredentials: true }
           )
-          .then(res => {
+          .then((res) => {
             if (res.data.success) {
               alert("avatar updated successfully!");
               dispatch(getFetchSeller());
             }
           })
-          .catch(error => toast.error(error.response.data.message));
+          .catch((error) => toast.error(error.response.data.message));
       }
     };
     reader.readAsDataURL(e.target.files[0]);
   };
-  const onSubmitHandle = data => {
+
+  const onSubmitHandle = (data) => {
+    setButtonLoading(true);
     const updatedData = {
       name: data.name,
       password: data.password,
@@ -52,8 +55,9 @@ const Settings = () => {
     };
     axiosPublic
       .put(`/shop/updated-information`, updatedData, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res.data.success) {
+          setButtonLoading(false);
           Swal.fire({
             title: "SuccesFull",
             text: "Shop info updated succesfully!",
@@ -63,9 +67,10 @@ const Settings = () => {
           navigate("/dashboard/home");
         }
       })
-      .catch(error =>
-        toast.error(error.response.data.message, { position: "top-center" })
-      );
+      .catch((error) => {
+        setButtonLoading(false);
+        toast.error(error.response.data.message, { position: "top-center" });
+      });
   };
   return (
     <div className="pt-10">
@@ -207,10 +212,15 @@ const Settings = () => {
             <div className="w-full">
               {" "}
               <button
+                disabled={buttonLoading}
                 type="submit"
-                className="h-[40px] border hover:border-[#3a24db] hover:text-[#3a24db] rounded-[3px] mt-8 cursor-pointer bg-[#3a24db] text-white hover:bg-transparent duration-200 w-[250px] "
+                className="h-[40px] border hover:border-[#3a24db] hover:text-[#3a24db] rounded-[3px] mt-8 cursor-pointer disabled:cursor-not-allowed bg-[#3a24db] text-white hover:bg-transparent duration-200 w-[250px] "
               >
-                Update
+                {buttonLoading ? (
+                  <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                ) : (
+                  "Update"
+                )}
               </button>
             </div>
           </form>

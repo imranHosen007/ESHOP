@@ -79,32 +79,35 @@ const categoriesData = [
 const CreateProducts = () => {
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
-  const { seller } = useSelector(store => store.seller);
+  const { seller } = useSelector((store) => store.seller);
   const [clickButton, setClickButton] = useState(false);
   const [images, setImages] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
+
   const [originalPrice, setOriginalPrice] = useState();
   const [discountPrice, setDiscountPrice] = useState();
   const [stock, setStock] = useState();
-  const handleImageChange = e => {
+
+  const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setImages([]);
-    files.forEach(file => {
+    files.forEach((file) => {
       const reader = new FileReader();
 
       reader.onload = () => {
         if (reader.readyState === 2) {
-          setImages(old => [...old, reader.result]);
+          setImages((old) => [...old, reader.result]);
         }
       };
       reader.readAsDataURL(file);
     });
   };
 
-  const handleSubmit = e => {
+  // ----Create-Product----
+  const handleSubmit = (e) => {
     e.preventDefault();
     setClickButton(true);
     axiosPublic
@@ -130,7 +133,7 @@ const CreateProducts = () => {
           },
         }
       )
-      .then(res => {
+      .then((res) => {
         if (res.data.success === true) {
           Swal.fire({
             title: "Product Added SuccesFull!",
@@ -140,7 +143,7 @@ const CreateProducts = () => {
           navigate(`/dashboard/products`);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         setClickButton(false);
         toast.error(error.response.data.message);
       });
@@ -161,7 +164,7 @@ const CreateProducts = () => {
               name="name"
               value={name}
               className="crateInput"
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Enter your product name..."
               required
             />
@@ -176,7 +179,7 @@ const CreateProducts = () => {
               name="description"
               value={description}
               className="mt-2 appearance-none block w-full pt-2 px-3 border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter your product description..."
               required
               rows="8 "
@@ -193,7 +196,7 @@ const CreateProducts = () => {
               id="category"
               required
               value={category}
-              onChange={e => setCategory(e.target.value)}
+              onChange={(e) => setCategory(e.target.value)}
             >
               <option defaultChecked>Choose a category</option>
               {categoriesData &&
@@ -217,7 +220,7 @@ const CreateProducts = () => {
               type="text"
               value={tags}
               className="crateInput"
-              onChange={e => setTags(e.target.value)}
+              onChange={(e) => setTags(e.target.value)}
               placeholder="Enter your product tags..."
             />
           </div>{" "}
@@ -231,7 +234,7 @@ const CreateProducts = () => {
               type="number"
               value={originalPrice ? originalPrice : ""}
               className="crateInput"
-              onChange={e => setOriginalPrice(e.target.value)}
+              onChange={(e) => setOriginalPrice(e.target.value)}
               placeholder="Enter your product price..."
             />
           </div>{" "}
@@ -247,7 +250,7 @@ const CreateProducts = () => {
               value={discountPrice}
               required
               className="crateInput"
-              onChange={e => setDiscountPrice(e.target.value)}
+              onChange={(e) => setDiscountPrice(e.target.value)}
               placeholder="Enter your product price with discount..."
             />
           </div>{" "}
@@ -263,7 +266,7 @@ const CreateProducts = () => {
               value={stock}
               required
               className="crateInput"
-              onChange={e => setStock(e.target.value)}
+              onChange={(e) => setStock(e.target.value)}
               placeholder="Enter your product price with discount..."
             />
           </div>{" "}
@@ -300,10 +303,14 @@ const CreateProducts = () => {
           <div>
             <button
               disabled={clickButton == true}
-              className="crateInput"
+              className="crateInput !disabled:cursor-not-allowed"
               type="submit"
             >
-              Create
+              {clickButton ? (
+                <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+              ) : (
+                "Create"
+              )}
             </button>
           </div>
         </form>

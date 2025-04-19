@@ -18,6 +18,7 @@ import {
 const ProductDeatisCard = ({ setOpen, data }) => {
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const axiosPublic = useAxiosPublic();
   const { user, isAtuhenticated } = useSelector((store) => store.user);
   const dispatch = useDispatch();
@@ -39,11 +40,15 @@ const ProductDeatisCard = ({ setOpen, data }) => {
     setCount(count + 1);
   };
 
+  // ---------Handle--Add-To---Cart---------
   const addToCartHandler = (item) => {
+    setButtonLoading(true);
     if (isAtuhenticated === false) {
+      setButtonLoading(false);
       return navigate("/login");
     }
     if (item.stock <= item.quantity) {
+      setButtonLoading(false);
       return toast.error("Product stock limited!", {
         position: "top-center",
       });
@@ -61,11 +66,13 @@ const ProductDeatisCard = ({ setOpen, data }) => {
       .post(`/cart`, cartData, { withCredentials: true })
       .then((res) => {
         if (res?.data) {
+          setButtonLoading(false);
           dispatch(addToCart(res?.data?.cartData));
           alert("Item added to cart successfully!");
         }
       })
       .catch((error) => {
+        setButtonLoading(false);
         return toast.error(error?.response?.data?.message);
       });
   };
@@ -98,6 +105,8 @@ const ProductDeatisCard = ({ setOpen, data }) => {
         return toast.error(error?.response?.data?.message);
       });
   };
+
+  // ----Remove-From-Wishlist-------
   const hanldeRemoveFromWishlist = (id) => {
     setClick(!click);
     axiosPublic
@@ -138,6 +147,8 @@ const ProductDeatisCard = ({ setOpen, data }) => {
         toast.error(error?.response?.data?.message, { position: "top-center" });
       });
   };
+
+  // ---------Whislti-Find-------
   useEffect(() => {
     const findWishlist = wishlist.find((i) => {
       return i.productId === data._id;
@@ -149,6 +160,7 @@ const ProductDeatisCard = ({ setOpen, data }) => {
       setClick(false);
     }
   }, [wishlist]);
+
   return (
     <div className="bg-white ">
       <ToastContainer />
@@ -187,7 +199,6 @@ const ProductDeatisCard = ({ setOpen, data }) => {
                       onClick={handleMessage}
                       className="flex items-center gap-2"
                     >
-                      {" "}
                       Send Message <AiOutlineMessage className="ml-1" />
                     </button>
                   </div>
@@ -255,10 +266,17 @@ const ProductDeatisCard = ({ setOpen, data }) => {
                 </div>
                 <div className="btn mt-6 rounded-[4px] h-11 flex items-center text-white">
                   <button
+                    disabled={buttonLoading}
                     onClick={() => addToCartHandler(data)}
                     className="flex items-center"
                   >
-                    Add to cart <AiOutlineShoppingCart className="ml-1" />
+                    {buttonLoading ? (
+                      <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                    ) : (
+                      <>
+                        Add to cart <AiOutlineShoppingCart className="ml-1" />{" "}
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

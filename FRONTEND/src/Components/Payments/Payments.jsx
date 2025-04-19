@@ -13,8 +13,9 @@ import { toast, ToastContainer } from "react-toastify";
 const Payments = () => {
   const axiosPublic = useAxiosPublic();
   const [open, setOpen] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [buttoClick, setButtonClick] = useState(false);
-  const { user } = useSelector(state => state.user);
+  const { user } = useSelector((state) => state.user);
   const [clientSecret, setClientSecret] = useState("");
   const stripe = useStripe();
   const element = useElements();
@@ -29,10 +30,8 @@ const Payments = () => {
     totalPrice: data?.state.totalPrice,
   };
 
-  const createOrder = (data, actions) => {};
-  const onApprove = () => {};
   // ----PaymentHandler------
-  const paymentHandler = async e => {
+  const paymentHandler = async (e) => {
     e.preventDefault();
     setButtonClick(true);
 
@@ -61,35 +60,38 @@ const Payments = () => {
 
       axiosPublic
         .post(`/order`, order, { withCredentials: true })
-        .then(res => {
+        .then((res) => {
           if (res?.data?.success) {
+            setButtonClick(false);
             navigate("/order-success");
           }
         })
-        .catch(error =>
-          toast.error("Order Failed", error?.response?.data?.message)
-        );
+        .catch((error) => {
+          toast.error("Order Failed", error?.response?.data?.message);
+          setButtonClick(false);
+        });
     }
   };
 
-  // ----Paypal-Handler-----
-  const paypalPaymentHandler = () => {};
   // ----CashOnDelivery-----
-  const handleCashOnDelivery = e => {
+  const handleCashOnDelivery = (e) => {
+    setButtonLoading(true);
     e.preventDefault();
     order.paymentInfo = {
       type: "Cash On Delivery",
     };
     axiosPublic
       .post(`/order`, order, { withCredentials: true })
-      .then(res => {
+      .then((res) => {
         if (res?.data?.success) {
+          setButtonLoading(false);
           navigate("/order-success");
         }
       })
-      .catch(error =>
-        toast.error("Order Failed", error?.response?.data?.message)
-      );
+      .catch((error) => {
+        toast.error("Order Failed", error?.response?.data?.message);
+        setButtonLoading(false);
+      });
   };
 
   const paymentData = {
@@ -108,10 +110,10 @@ const Payments = () => {
           },
         }
       )
-      .then(res => {
+      .then((res) => {
         setClientSecret(res.data.client_secret);
       })
-      .catch(error => toast.error(error?.response?.data?.message));
+      .catch((error) => toast.error(error?.response?.data?.message));
     window.scrollTo(0, 0);
   }, []);
   return (
@@ -231,9 +233,13 @@ const Payments = () => {
                     <button
                       disabled={buttoClick}
                       type="submit"
-                      className="btn !bg-[#f63b60] disabled:!bg-slate-500 text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]"
+                      className="btn !bg-[#f63b60] disabled:!bg-slate-500 text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600] disabled:cursor-not-allowed"
                     >
-                      Submit
+                      {buttoClick ? (
+                        <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                      ) : (
+                        "Pay"
+                      )}
                     </button>
                   </form>
                 </div>
@@ -276,10 +282,15 @@ const Payments = () => {
                 <div className="flex w-full">
                   <form className="w-full" onSubmit={handleCashOnDelivery}>
                     <button
+                      disabled={buttonLoading}
                       type="submit"
-                      className="btn !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]"
+                      className="btn !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600] disabled:cursor-not-allowed"
                     >
-                      Confirm
+                      {buttonLoading ? (
+                        <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                      ) : (
+                        "Confirm"
+                      )}
                     </button>
                   </form>
                 </div>

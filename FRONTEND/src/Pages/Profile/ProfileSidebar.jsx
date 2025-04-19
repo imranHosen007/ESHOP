@@ -2,10 +2,7 @@ import React from "react";
 import { AiOutlineLogin, AiOutlineMessage } from "react-icons/ai";
 import { HiOutlineReceiptRefund, HiOutlineShoppingBag } from "react-icons/hi";
 import { RxPerson } from "react-icons/rx";
-import {
-  MdOutlineAdminPanelSettings,
-  MdOutlineTrackChanges,
-} from "react-icons/md";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { TbAddressBook } from "react-icons/tb";
 import { useSelector } from "react-redux";
@@ -47,7 +44,7 @@ const ProfileItems = [
   },
 ];
 const ProfileSidebar = ({ active, setActive }) => {
-  const { user } = useSelector(state => state.user);
+  const { user, isLoading } = useSelector((state) => state.user);
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
 
@@ -60,11 +57,11 @@ const ProfileSidebar = ({ active, setActive }) => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, Logout",
-    }).then(result => {
+    }).then((result) => {
       if (result.isConfirmed) {
         axiosPublic
           .get(`/user/logout`, { withCredentials: true })
-          .then(res => {
+          .then((res) => {
             axiosPublic.get("/seller/logout").then().catch();
             Swal.fire({
               title: res.data.message,
@@ -73,10 +70,18 @@ const ProfileSidebar = ({ active, setActive }) => {
             navigate(`/login`);
             window.location.reload(true);
           })
-          .catch(error => alert(error.response.data.message));
+          .catch((error) => alert(error.response.data.message));
       }
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white shadow-sm rounded-[10px] w-full p-4 pt-8">

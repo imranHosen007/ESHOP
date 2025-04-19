@@ -78,9 +78,9 @@ const categoriesData = [
 ];
 const CreateEvent = () => {
   const navigate = useNavigate();
-  const { seller } = useSelector(store => store.seller);
+  const { seller } = useSelector((store) => store.seller);
   const axiosPublic = useAxiosPublic();
-
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [images, setImages] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -91,25 +91,29 @@ const CreateEvent = () => {
   const [stock, setStock] = useState();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const handleImageChange = e => {
+
+  const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setImages([]);
-    files.forEach(file => {
+    files.forEach((file) => {
       const reader = new FileReader();
 
       reader.onload = () => {
         if (reader.readyState === 2) {
-          setImages(old => [...old, reader.result]);
+          setImages((old) => [...old, reader.result]);
         }
       };
       reader.readAsDataURL(file);
     });
   };
-  const handleStartDate = e => {
+
+  // -----Start-Date-------
+  const handleStartDate = (e) => {
     const startDate = new Date(e.target.value);
     setStartDate(startDate);
     setEndDate(null);
   };
+
   const today = new Date().toISOString().slice(0, 10);
 
   const minEndDate = startDate
@@ -118,12 +122,14 @@ const CreateEvent = () => {
         .slice(0, 10)
     : "";
 
-  const handleEndDate = e => {
+  const handleEndDate = (e) => {
     const endDate = new Date(e.target.value);
     setEndDate(endDate);
   };
 
-  const handleSubmit = e => {
+  // -------Create-Evenet-----
+  const handleSubmit = (e) => {
+    setButtonLoading(true);
     e.preventDefault();
 
     const data = {
@@ -152,8 +158,9 @@ const CreateEvent = () => {
           },
         }
       )
-      .then(res => {
+      .then((res) => {
         if (res.data.success === true) {
+          setButtonLoading(false);
           Swal.fire({
             title: "Event Added SuccesFull!",
             icon: "success",
@@ -162,7 +169,10 @@ const CreateEvent = () => {
           navigate(`/dashboard/event`);
         }
       })
-      .catch(error => toast.error(error.response.data.message));
+      .catch((error) => {
+        setButtonLoading(false);
+        toast.error(error.response.data.message);
+      });
   };
   return (
     <div className="flex justify-center p-3 ">
@@ -179,7 +189,7 @@ const CreateEvent = () => {
               name="name"
               value={name}
               className="crateInput"
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Enter your product name..."
               required
             />
@@ -194,7 +204,7 @@ const CreateEvent = () => {
               name="description"
               value={description}
               className="mt-2 appearance-none block w-full pt-2 px-3 border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter your product description..."
               required
               rows="8 "
@@ -211,7 +221,7 @@ const CreateEvent = () => {
               id="category"
               required
               value={category}
-              onChange={e => setCategory(e.target.value)}
+              onChange={(e) => setCategory(e.target.value)}
             >
               <option defaultChecked>Choose a category</option>
               {categoriesData &&
@@ -235,7 +245,7 @@ const CreateEvent = () => {
               type="text"
               value={tags}
               className="crateInput"
-              onChange={e => setTags(e.target.value)}
+              onChange={(e) => setTags(e.target.value)}
               placeholder="Enter your product tags..."
             />
           </div>{" "}
@@ -249,7 +259,7 @@ const CreateEvent = () => {
               type="number"
               value={originalPrice}
               className="crateInput"
-              onChange={e => setOriginalPrice(e.target.value)}
+              onChange={(e) => setOriginalPrice(e.target.value)}
               placeholder="Enter your product price..."
             />
           </div>{" "}
@@ -265,7 +275,7 @@ const CreateEvent = () => {
               value={discountPrice}
               required
               className="crateInput"
-              onChange={e => setDiscountPrice(e.target.value)}
+              onChange={(e) => setDiscountPrice(e.target.value)}
               placeholder="Enter your product price with discount..."
             />
           </div>{" "}
@@ -281,7 +291,7 @@ const CreateEvent = () => {
               value={stock}
               required
               className="crateInput"
-              onChange={e => setStock(e.target.value)}
+              onChange={(e) => setStock(e.target.value)}
               placeholder="Enter your product price with discount..."
             />
           </div>{" "}
@@ -350,7 +360,16 @@ const CreateEvent = () => {
             </div>
           </div>
           <div>
-            <button className="crateInput" type="submit">
+            <button
+              disabled={buttonLoading}
+              className="crateInput !disabled:cursor-not-allowed"
+              type="submit"
+            >
+              {buttonLoading ? (
+                <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+              ) : (
+                "Create"
+              )}
               Create
             </button>
           </div>

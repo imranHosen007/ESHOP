@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -19,6 +18,7 @@ const AllProducts = () => {
   const dispatch = useDispatch();
   const { product, isLoading } = useSelector((store) => store.product);
   const { seller } = useSelector((store) => store.seller);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
@@ -26,6 +26,7 @@ const AllProducts = () => {
   }, [dispatch]);
 
   const handleDelete = (id) => {
+    setButtonLoading(true);
     Swal.fire({
       title: "Are you sure?",
       text: "Delete This Product",
@@ -40,6 +41,7 @@ const AllProducts = () => {
           .delete(`/product/shop-product-delete/${id}`)
           .then((res) => {
             if (res.data.success === true) {
+              setButtonLoading(false);
               dispatch(deleteProduct(id));
               Swal.fire({
                 title: "Deleted!",
@@ -48,7 +50,10 @@ const AllProducts = () => {
               });
             }
           })
-          .catch((error) => toast.error(error.response.data.message));
+          .catch((error) => {
+            toast.error(error.response.data.message);
+            setButtonLoading(false);
+          });
       }
     });
   };
@@ -140,7 +145,10 @@ const AllProducts = () => {
                         </Link>
                       </td>
                       <td className="px-4 py-4 md:px-0 whitespace-nowrap">
-                        <button onClick={() => handleDelete(item._id)}>
+                        <button
+                          disabled={buttonLoading}
+                          onClick={() => handleDelete(item._id)}
+                        >
                           <AiOutlineDelete size={20} />
                         </button>
                       </td>

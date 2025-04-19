@@ -6,9 +6,9 @@ import { shopGetProducts } from "../../../Redux/Api/ProductApi";
 import { getShopEvent } from "../../../Redux/Api/EventApi";
 
 const ShopProfileData = ({ isOwner }) => {
-  const { product } = useSelector(store => store.product);
-  const { seller } = useSelector(store => store.seller);
-  const { event, isLoading } = useSelector(store => store.event);
+  const { product } = useSelector((store) => store.product);
+  const { seller } = useSelector((store) => store.seller);
+  const { event, isLoading } = useSelector((store) => store.event);
   const dispatch = useDispatch();
   const [active, setActive] = useState(1);
   const { id } = useParams();
@@ -17,6 +17,7 @@ const ShopProfileData = ({ isOwner }) => {
     dispatch(shopGetProducts(id));
     dispatch(getShopEvent(seller._id));
   }, [dispatch]);
+
   return (
     <div>
       <div className="flex items-center justify-between">

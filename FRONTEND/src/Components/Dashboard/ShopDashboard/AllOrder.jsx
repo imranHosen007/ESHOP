@@ -10,8 +10,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getOrderByShop } from "../../../Redux/Api/OrderApi";
 
 const AllOrder = () => {
-  const { seller } = useSelector(store => store.seller);
-  const { allOrder } = useSelector(store => store.order);
+  const { seller } = useSelector((store) => store.seller);
+  const { allOrder } = useSelector((store) => store.order);
+
   const dispatch = useDispatch();
   // ------Pagination---------
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +21,7 @@ const AllOrder = () => {
   const firstIndex = currentPage * itemsPerPage;
   const lastIndex = firstIndex - itemsPerPage;
   const currentItems = allOrder.slice(lastIndex, firstIndex);
-  const axiosPublic = useAxiosPublic();
+
   const handlePrev = () => {
     if (currentPage <= 1) {
       setCurrentPage(totalPage);

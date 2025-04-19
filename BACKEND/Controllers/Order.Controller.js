@@ -17,7 +17,7 @@ export const createOrder = async (req, res, next) => {
       }
       shopItemsMap.get(shopId).push(item);
     }
-    const qurry = newCart.map(item => new ObjectId(item._id));
+    const qurry = newCart.map((item) => new ObjectId(item._id));
 
     const orders = [];
     for (const [shopId, items] of shopItemsMap) {
@@ -81,18 +81,21 @@ export const updateOrderStatus = async (req, res, next) => {
       return next(new ErrorHandler("Order not found with this id", 400));
     }
     if (req.body.status === "Transferred to delivery partner") {
-      order.cart.forEach(async o => {
+      order.cart.forEach(async (o) => {
         await updateOrder(o.productId, o.quantity);
       });
     }
     order.status = req.body.status;
+
     if (req.body.status === "Delivered") {
       order.deliveredAt = Date.now();
       order.paymentInfo.status = "Succeeded";
       const serviceCharge = order.totalPrice * 0.1;
       await updateSeller(order.totalPrice - serviceCharge);
     }
+
     await order.save({ validateBeforeSave: false });
+
     async function updateOrder(id, qtn) {
       const product = await Product.findById(id);
 
@@ -147,7 +150,7 @@ export const orderRefundSuccess = async (req, res, next) => {
     order.status = req.body.status;
     order.save();
     if (req.body.status === "Refund Success") {
-      order.cart.forEach(async o => {
+      order.cart.forEach(async (o) => {
         await updateOrder(o.productId, o.quantity);
       });
     }

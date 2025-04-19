@@ -11,10 +11,10 @@ import { removeEvent } from "../../Redux/Slice/EventSlice";
 const AdminDashboardEvents = () => {
   const dispatch = useDispatch();
   const axiosPublic = useAxiosPublic();
-  const { allEvent } = useSelector(store => store.event);
+  const { allEvent } = useSelector((store) => store.event);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage] = useState(5);
-
+  const [buttonLoading, setButtonLoading] = useState(false);
   const newTotalPage = [];
   // ------Pagination---------
   const totalPage = Math.ceil(allEvent.length / itemPerPage);
@@ -35,11 +35,12 @@ const AdminDashboardEvents = () => {
     }
   };
 
-  const handleChange = value => {
+  const handleChange = (value) => {
     setCurrentPage(value);
   };
   // ---------Handle-Function------
-  const handleDelete = id => {
+  const handleDelete = (id) => {
+    setButtonLoading(true);
     Swal.fire({
       title: "Are you sure?",
       text: "Deleted This Product ",
@@ -48,17 +49,21 @@ const AdminDashboardEvents = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then(result => {
+    }).then((result) => {
       if (result.isConfirmed) {
         axiosPublic
           .delete(`/event/${id}`)
-          .then(res => {
+          .then((res) => {
             if (res.data.success) {
+              setButtonLoading(false);
               dispatch(removeEvent(id));
               toast.success(res.data.message);
             }
           })
-          .catch(error => toast.error(error?.data?.response?.message));
+          .catch((error) => {
+            setButtonLoading(false);
+            toast.error(error?.data?.response?.message);
+          });
       }
     });
   };

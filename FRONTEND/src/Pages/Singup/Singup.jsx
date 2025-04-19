@@ -13,8 +13,10 @@ const Singup = () => {
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState(null);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const navigate = useNavigate();
-  const handleFileInput = e => {
+
+  const handleFileInput = (e) => {
     const reader = new FileReader();
 
     reader.onload = () => {
@@ -25,9 +27,10 @@ const Singup = () => {
     reader.readAsDataURL(e.target.files[0]);
   };
 
-  const handleSubmit = e => {
+  // ----Handle-SignUp-----
+  const handleSubmit = (e) => {
     e.preventDefault();
-
+    setButtonLoading(true);
     axiosPublic
       .post(
         `user/create-user`,
@@ -39,7 +42,7 @@ const Singup = () => {
           },
         }
       )
-      .then(res => {
+      .then((res) => {
         if (res.data.success == true) {
           Swal.fire({
             position: "top-center",
@@ -48,6 +51,7 @@ const Singup = () => {
             showConfirmButton: false,
             timer: 1500,
           });
+          setButtonLoading(false);
           setName("");
           setEmail("");
           setPassword("");
@@ -56,7 +60,8 @@ const Singup = () => {
           window.location.reload(true);
         }
       })
-      .catch(error => {
+      .catch((error) => {
+        setButtonLoading(false);
         toast.error(error.response.data.message);
       });
   };
@@ -81,7 +86,7 @@ const Singup = () => {
               <div className="mt-1">
                 <input
                   value={name}
-                  onChange={e => setName(e.target.value)}
+                  onChange={(e) => setName(e.target.value)}
                   type="text"
                   id="name"
                   name="name"
@@ -101,7 +106,7 @@ const Singup = () => {
               <div className="mt-1">
                 <input
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   id="email"
                   autoComplete="email"
@@ -120,7 +125,7 @@ const Singup = () => {
               <div className="relative mt-1">
                 <input
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   type={visible ? "text" : "password"}
                   id="Password"
                   name="pasword"
@@ -178,10 +183,15 @@ const Singup = () => {
             </div>
             <div>
               <button
+                disabled={buttonLoading}
                 type="submit"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed"
               >
-                Submit
+                {buttonLoading ? (
+                  <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+                ) : (
+                  "SignUp"
+                )}
               </button>
             </div>
             <div className="flex items-center w-full">

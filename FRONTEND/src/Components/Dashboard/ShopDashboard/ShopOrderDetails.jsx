@@ -16,16 +16,20 @@ const ShopOrderDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
-
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [refundLoading, setRefundLoading] = useState(false);
   // ----Update-Status-----
   const handleUpdateStatus = () => {
+    setStatusLoading(true);
     if (data?.status === status) {
+      setStatusLoading(false);
       return toast.error(`Already ${data?.status}`);
     }
     axiosPublic
       .put(`/order/status/${id}`, { status }, { withCredentials: true })
       .then((res) => {
         if (res.data.success) {
+          setStatusLoading(false);
           // alert("Order updated!");
           Swal.fire({
             title: "SuccesFull!",
@@ -36,15 +40,20 @@ const ShopOrderDetails = () => {
           navigate("/dashboard/order");
         }
       })
-      .catch((error) => toast.error(error?.response?.data?.message));
+      .catch((error) => {
+        setStatusLoading(false);
+        toast.error(error?.response?.data?.message);
+      });
   };
 
   // -----handleRefeund------
   const handleRefeund = () => {
+    setRefundLoading(true);
     axiosPublic
       .put(`/order/refund-success/${id}`, { status }, { withCredentials: true })
       .then((res) => {
         if (res.data.success) {
+          setRefundLoading(false);
           Swal.fire({
             title: "SuccesFull!",
             text: res?.data?.message,
@@ -54,8 +63,12 @@ const ShopOrderDetails = () => {
           navigate("/dashboard/order");
         }
       })
-      .catch((error) => toast.error(error?.response?.data?.message));
+      .catch((error) => {
+        setRefundLoading(false);
+        toast.error(error?.response?.data?.message);
+      });
   };
+
   useEffect(() => {
     dispatch(getOrderByShop(seller._id));
     const findData = allOrder.find((item) => item._id === id);
@@ -188,6 +201,7 @@ const ShopOrderDetails = () => {
         ) : null}
 
         <button
+          disabled={refundLoading || statusLoading}
           onClick={
             data?.status !== ' "Processing refund"'
               ? handleUpdateStatus
@@ -195,7 +209,11 @@ const ShopOrderDetails = () => {
           }
           className="btn  mt-5 !bg-[#FCE1E6] !rounded-[4px] text-[#E94560] font-[600] !h-[45px] text-[18px] disabled:!bg-slate-500 disabled:text-white"
         >
-          Update Status
+          {refundLoading || statusLoading ? (
+            <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+          ) : (
+            "Update Status"
+          )}
         </button>
       </div>
     </div>

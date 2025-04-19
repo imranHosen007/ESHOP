@@ -10,10 +10,10 @@ import { removeOrder } from "../../Redux/Slice/OrderSlice";
 const AdminDashboardOrders = () => {
   const dispatch = useDispatch();
   const axiosPublic = useAxiosPublic();
-  const { AllOrder } = useSelector(store => store.order);
+  const { AllOrder } = useSelector((store) => store.order);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage] = useState(5);
-
+  const [buttonLoading, setButtonLoading] = useState(false);
   const newTotalPage = [];
   // ------Pagination---------
   const totalPage = Math.ceil(AllOrder.length / itemPerPage);
@@ -34,11 +34,12 @@ const AdminDashboardOrders = () => {
     }
   };
 
-  const handleChange = value => {
+  const handleChange = (value) => {
     setCurrentPage(value);
   };
   // ---------Handle-Function------
-  const handleDelete = id => {
+  const handleDelete = (id) => {
+    setButtonLoading(true);
     Swal.fire({
       title: "Are you sure?",
       text: "Deleted This Order ",
@@ -47,17 +48,21 @@ const AdminDashboardOrders = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then(result => {
+    }).then((result) => {
       if (result.isConfirmed) {
         axiosPublic
           .delete(`/order/${id}`)
-          .then(res => {
+          .then((res) => {
             if (res.data.success) {
+              setButtonLoading(false);
               dispatch(removeOrder(id));
               toast.success(res.data.message);
             }
           })
-          .catch(error => toast.error(error?.data?.response?.message));
+          .catch((error) => {
+            setButtonLoading(false);
+            toast.error(error?.data?.response?.message);
+          });
       }
     });
   };
@@ -130,7 +135,7 @@ const AdminDashboardOrders = () => {
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button
                           onClick={() => handleDelete(user._id)}
-                          disabled={user?.role === "admin"}
+                          disabled={user?.role !== "admin" || buttonLoading}
                           className="inline-flex items-center gap-2 px-2 py-1 font-semibold text-white bg-red-600 rounded-md disabled:bg-slate-500"
                         >
                           Delete <FcDeleteDatabase className="text-white" />

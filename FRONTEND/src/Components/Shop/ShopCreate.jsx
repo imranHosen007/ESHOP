@@ -11,8 +11,10 @@ const ShopCreate = () => {
   const [avatar, setAvatar] = useState();
   const { register, handleSubmit, reset } = useForm();
   const [visible, setVisible] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const navigate = useNavigate();
-  const handleFileInput = e => {
+
+  const handleFileInput = (e) => {
     const reader = new FileReader();
 
     reader.onload = () => {
@@ -23,7 +25,9 @@ const ShopCreate = () => {
     reader.readAsDataURL(e.target.files[0]);
   };
 
-  const onSubmitHandle = data => {
+  // --------Handle-Submit------
+  const onSubmitHandle = (data) => {
+    setButtonLoading(true);
     const sellerData = {
       avatar: avatar,
       name: data.name,
@@ -44,8 +48,9 @@ const ShopCreate = () => {
           },
         }
       )
-      .then(res => {
+      .then((res) => {
         if (res.data.success == true) {
+          setButtonLoading(false);
           Swal.fire({
             position: "top-center",
             icon: "success",
@@ -60,7 +65,8 @@ const ShopCreate = () => {
 
         window.location.reload(true);
       })
-      .catch(error => {
+      .catch((error) => {
+        setButtonLoading(false);
         toast.error(error.response.data.message);
       });
   };
@@ -170,7 +176,7 @@ const ShopCreate = () => {
               >
                 Password
               </label>
-              <div className="mt-1 relative">
+              <div className="relative mt-1">
                 <input
                   type={visible ? "text" : "password"}
                   name="password"
@@ -229,10 +235,15 @@ const ShopCreate = () => {
             </div>
             <div className="mt-4">
               <button
+                disabled={buttonLoading}
                 type="submit"
                 className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
               >
-                Submit
+                {buttonLoading ? (
+                  <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                ) : (
+                  "Create Shop"
+                )}
               </button>
             </div>
             <div className="flex items-center w-full">

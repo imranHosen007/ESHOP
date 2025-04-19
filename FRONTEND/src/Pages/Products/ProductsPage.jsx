@@ -7,7 +7,7 @@ const ProductsPage = () => {
   const [data, setData] = useState([]);
   const [URLSearchParams] = useSearchParams();
   const categoryData = URLSearchParams.get("category");
-  const { allProduct } = useSelector(store => store.product);
+  const { allProduct, isLoading } = useSelector((store) => store.product);
 
   useEffect(() => {
     if (categoryData === null) {
@@ -20,12 +20,19 @@ const ProductsPage = () => {
       const allProductsData = allProduct ? [...allProduct] : [];
       const d =
         allProductsData &&
-        allProductsData.filter(item => item.category === categoryData);
+        allProductsData.filter((item) => item.category === categoryData);
       setData(d);
     }
     window.scrollTo(0, 0);
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
   return (
     <div className="section py-10">
       <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px mb-12 border-0">

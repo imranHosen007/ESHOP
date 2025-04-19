@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
@@ -6,13 +6,16 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { shopGetProducts } from "../../../Redux/Api/ProductApi";
 const ShopInfo = ({ isOwner }) => {
+  const [buttonLoading, setButtonLoading] = useState(false);
   const axiosPublic = useAxiosPublic();
-  const { seller } = useSelector(store => store.seller);
-  const { product } = useSelector(store => store.product);
+  const { seller } = useSelector((store) => store.seller);
+  const { product } = useSelector((store) => store.product);
   const dispatch = useDispatch();
   const { id } = useParams();
   const navigate = useNavigate();
+
   const handleLogout = () => {
+    setButtonLoading(true);
     Swal.fire({
       title: "Are you sure?",
 
@@ -21,12 +24,13 @@ const ShopInfo = ({ isOwner }) => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, Logout",
-    }).then(result => {
+    }).then((result) => {
       if (result.isConfirmed) {
         axiosPublic
           .get(`/shop/logout`, { withCredentials: true })
-          .then(res => {
+          .then((res) => {
             if ((res.success = true)) {
+              setButtonLoading(false);
               Swal.fire({
                 title: res.data.message,
                 icon: "success",
@@ -35,7 +39,10 @@ const ShopInfo = ({ isOwner }) => {
               window.location.reload(true);
             }
           })
-          .catch(error => toast.error(error.response.data.message));
+          .catch((error) => {
+            setButtonLoading(false);
+            toast.error(error.response.data.message);
+          });
       }
     });
   };
@@ -58,7 +65,7 @@ const ShopInfo = ({ isOwner }) => {
   return (
     <div>
       <div className="w-full py-5">
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col items-center justify-center">
           <img
             src={seller?.avatar?.url}
             alt=""
@@ -91,17 +98,22 @@ const ShopInfo = ({ isOwner }) => {
         <h4 className="text-[#000000a6]">{seller?.createdAt?.slice(0, 10)}</h4>
       </div>
       {isOwner === true && (
-        <div className="py-3 px-4">
+        <div className="px-4 py-3">
           <Link to={`/dashboard/settings`}>
             <button className="btn !w-full !h-[42px] !rounded-[5px] text-white">
               Edit Shop
             </button>
           </Link>{" "}
           <button
+            disabled={buttonLoading}
             onClick={handleLogout}
-            className="btn !w-full !h-[42px] !rounded-[5px] text-white"
+            className="btn disabled:cursor-not-allowed !w-full !h-[42px] !rounded-[5px] text-white"
           >
-            Log Out
+            {buttonLoading ? (
+              <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+            ) : (
+              " Log Out"
+            )}
           </button>
         </div>
       )}

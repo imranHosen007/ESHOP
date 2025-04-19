@@ -4,10 +4,10 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
-import axios from "axios";
+
 export const Checkout = () => {
-  const { user } = useSelector(store => store.user);
-  const { cart } = useSelector(store => store.cart);
+  const { user } = useSelector((store) => store.user);
+  const { cart } = useSelector((store) => store.cart);
   const [country, setCountry] = useState("");
   const [city, setCity] = useState();
   const [userInfo, setUserInfo] = useState(false);
@@ -16,6 +16,7 @@ export const Checkout = () => {
   const [zipCode, setZipCode] = useState(null);
   const [couponCode, setCouponCode] = useState("");
   const [couponCodeData, setCouponCodeData] = useState(null);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [discountPrice, setDiscountPrice] = useState(null);
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
@@ -64,20 +65,22 @@ export const Checkout = () => {
   };
 
   // ----Coupon-Code-----
-  const handleCouponCode = e => {
+  const handleCouponCode = (e) => {
+    setButtonLoading(true);
     e.preventDefault();
     const name = couponCode;
 
     axiosPublic
       .get(`/coupon/coupon-value/${name}`)
-      .then(res => {
+      .then((res) => {
         const shopId = res.data.couponCode?.shopId;
         const couponCodeValue = res.data.couponCode?.value;
 
         if (res?.data?.success) {
+          setButtonLoading(false);
           const isCouponValid =
             cart &&
-            cart.filter(item => {
+            cart.filter((item) => {
               return item.shopId === shopId;
             });
 
@@ -97,7 +100,10 @@ export const Checkout = () => {
           }
         }
       })
-      .catch(error => toast.error(error?.response?.data?.message));
+      .catch((error) => {
+        setButtonLoading(false);
+        toast.error(error?.response?.data?.message);
+      });
   };
 
   useEffect(() => {
@@ -173,7 +179,7 @@ export const Checkout = () => {
                     required
                     placeholder="Enter Your Zip Code"
                     value={zipCode}
-                    onChange={e => setZipCode(e.target.value)}
+                    onChange={(e) => setZipCode(e.target.value)}
                     className="formInput "
                   />
                 </div>
@@ -188,12 +194,12 @@ export const Checkout = () => {
                     className="w-[95%] border h-[40px] rounded-[5px]"
                     id="country"
                     value={country}
-                    onChange={e => setCountry(e.target.value)}
+                    onChange={(e) => setCountry(e.target.value)}
                   >
                     <option className="block pb-2" defaultChecked>
                       Choose your country
                     </option>{" "}
-                    {Country.getAllCountries().map(item => {
+                    {Country.getAllCountries().map((item) => {
                       return (
                         <option
                           value={item.isoCode}
@@ -214,12 +220,12 @@ export const Checkout = () => {
                     className="w-[95%] border h-[40px] rounded-[5px]"
                     id="city"
                     value={city}
-                    onChange={e => setCity(e.target.value)}
+                    onChange={(e) => setCity(e.target.value)}
                   >
                     <option className="block pb-2" defaultChecked>
                       Choose your country
                     </option>{" "}
-                    {State.getStatesOfCountry(country).map(item => {
+                    {State.getStatesOfCountry(country).map((item) => {
                       return (
                         <option
                           value={item.isoCode}
@@ -246,7 +252,7 @@ export const Checkout = () => {
                     required
                     placeholder="Enter Your address1"
                     value={address1}
-                    onChange={e => setAddress1(e.target.value)}
+                    onChange={(e) => setAddress1(e.target.value)}
                     className="formInput !w-[95%]"
                   />
                 </div>
@@ -261,7 +267,7 @@ export const Checkout = () => {
                     required
                     placeholder="Enter Your address2"
                     value={address2}
-                    onChange={e => setAddress2(e.target.value)}
+                    onChange={(e) => setAddress2(e.target.value)}
                     className="formInput "
                   />
                 </div>
@@ -343,15 +349,20 @@ export const Checkout = () => {
                 className=" h-[40px] pl-2 formInput"
                 placeholder="Coupoun code"
                 value={couponCode}
-                onChange={e => setCouponCode(e.target.value)}
+                onChange={(e) => setCouponCode(e.target.value)}
                 required
               />
 
               <button
-                className="w-full h-[40px] border border-[#f63b60] text-center text-[#f63b60] rounded-[3px] mt-8 cursor-pointer"
+                disabled={buttonLoading}
+                className="w-full h-[40px] border border-[#f63b60] text-center text-[#f63b60] rounded-[3px] mt-8 cursor-pointer disabled:cursor-not-allowed"
                 type="submit"
               >
-                Apply code
+                {buttonLoading ? (
+                  <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+                ) : (
+                  "Apply code"
+                )}
               </button>
             </form>
           </div>

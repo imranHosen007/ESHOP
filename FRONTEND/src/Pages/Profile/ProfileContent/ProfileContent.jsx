@@ -20,6 +20,7 @@ const ProfileContent = ({ active }) => {
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
   const axiosPublic = useAxiosPublic();
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const {
     register,
@@ -51,6 +52,7 @@ const ProfileContent = ({ active }) => {
   };
 
   const onSubmitHandle = (data) => {
+    setButtonLoading(true);
     const updatedData = {
       name: data.name,
       phone: data.phone,
@@ -72,6 +74,7 @@ const ProfileContent = ({ active }) => {
           .put(`/user`, updatedData, { withCredentials: true })
           .then((res) => {
             if (res.data.success === true) {
+              setButtonLoading(false);
               Swal.fire({
                 title: "Updated",
                 text: "Information Updated SuccesFull!",
@@ -82,6 +85,7 @@ const ProfileContent = ({ active }) => {
             }
           })
           .catch((error) => {
+            setButtonLoading(false);
             return toast.error(error.response.data.message);
           });
       }
@@ -193,12 +197,16 @@ const ProfileContent = ({ active }) => {
                 </div>
 
                 <div className="w-full">
-                  {" "}
                   <button
+                    disabled={buttonLoading}
                     type="submit"
-                    className="h-[40px] border border-[#3a24db] text-[#3a24db] rounded-[3px] mt-8 cursor-pointer w-[250px] "
+                    className="h-[40px] border border-[#3a24db] text-[#3a24db] rounded-[3px] mt-8 cursor-pointer w-[250px] disabled:cursor-not-allowed"
                   >
-                    Update
+                    {buttonLoading ? (
+                      <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+                    ) : (
+                      "Update"
+                    )}
                   </button>
                 </div>
               </form>

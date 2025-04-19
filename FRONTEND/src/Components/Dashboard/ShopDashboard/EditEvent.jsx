@@ -8,7 +8,7 @@ import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import { getAllEvent } from "../../../Redux/Api/EventApi";
 
 const EditEvent = () => {
-  const { allEvent } = useSelector(store => store.event);
+  const { allEvent } = useSelector((store) => store.event);
   const [name, setName] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
@@ -21,8 +21,12 @@ const EditEvent = () => {
   const [endDate, setEndDate] = useState(null);
   const [endDate2, setEndDate2] = useState(null);
   const { id } = useParams();
+  const [buttonLoading, setButtonLoading] = useState(false);
+
   const today = new Date().toISOString().slice(0, 10);
-  const handleSubmit = e => {
+
+  const handleSubmit = (e) => {
+    setButtonLoading(true);
     e.preventDefault();
     const updatedData = {
       name,
@@ -40,12 +44,13 @@ const EditEvent = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, Update it!",
-    }).then(result => {
+    }).then((result) => {
       if (result.isConfirmed) {
         axiosPublic
           .put(`/event/${id}`, updatedData)
-          .then(res => {
+          .then((res) => {
             if (res.data.success) {
+              setButtonLoading(false);
               Swal.fire({
                 title: "Updated SuccesFull",
                 text: res.data.message,
@@ -54,18 +59,22 @@ const EditEvent = () => {
               navigate("/dashboard/event");
             }
           })
-          .catch(error => toast.error(error?.data?.response?.message));
+          .catch((error) => {
+            setButtonLoading(false);
+            toast.error(error?.data?.response?.message);
+          });
       }
     });
   };
 
-  const handleEndDate = e => {
+  const handleEndDate = (e) => {
     const endDate = new Date(e.target.value);
     setEndDate2(endDate);
   };
+
   useEffect(() => {
     disptach(getAllEvent());
-    const p = allEvent && allEvent.find(item => item._id == id);
+    const p = allEvent && allEvent.find((item) => item._id == id);
     setName(p.name);
     setStock(p.stock);
     setDescription(p.description);
@@ -90,7 +99,7 @@ const EditEvent = () => {
                 Event Name
               </label>
               <input
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 value={name}
                 type="text"
                 id="name"
@@ -103,7 +112,7 @@ const EditEvent = () => {
                 Stock
               </label>
               <input
-                onChange={e => setStock(e.target.value)}
+                onChange={(e) => setStock(e.target.value)}
                 value={stock}
                 type="number"
                 id="email"
@@ -118,7 +127,7 @@ const EditEvent = () => {
                 Orginal Price
               </label>
               <input
-                onChange={e => setOrginalPrice(e.target.value)}
+                onChange={(e) => setOrginalPrice(e.target.value)}
                 value={orginalPrice}
                 type="number"
                 id="orginalPrice"
@@ -131,7 +140,7 @@ const EditEvent = () => {
                 Price (With Discount)
               </label>
               <input
-                onChange={e => setDiscountPrice(e.target.value)}
+                onChange={(e) => setDiscountPrice(e.target.value)}
                 value={discountPrice}
                 placeholder="Enter Your Price"
                 type="number"
@@ -186,7 +195,7 @@ const EditEvent = () => {
             </label>
             <textarea
               type="text"
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               name="description"
               value={description}
               className="mt-2 appearance-none block w-full pt-2 px-3 border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none sm:text-sm"
@@ -199,10 +208,15 @@ const EditEvent = () => {
           <div className="w-full pb-4">
             {" "}
             <button
+              disabled={buttonLoading}
               type="submit"
-              className="h-[40px] border hover:border-[#3a24db] hover:text-[#3a24db] rounded-[3px] mt-8 cursor-pointer bg-[#3a24db] text-white hover:bg-transparent duration-200 w-[250px] "
+              className="h-[40px] disabled:cursor-not-allowed border hover:border-[#3a24db] hover:text-[#3a24db] rounded-[3px] mt-8 cursor-pointer bg-[#3a24db] text-white hover:bg-transparent duration-200 w-[250px] "
             >
-              Update
+              {buttonLoading ? (
+                <div className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin border-t-blue-600" />
+              ) : (
+                "Update"
+              )}
             </button>
           </div>
         </form>

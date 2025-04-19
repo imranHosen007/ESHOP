@@ -7,6 +7,7 @@ const ChangePassowrd = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [visible1, setVisibl1] = useState(false);
   const [visible2, setVisible2] = useState(false);
@@ -14,14 +15,17 @@ const ChangePassowrd = () => {
   const [error, setError] = useState("");
 
   const handlePasswordChange = (e) => {
+    setButtonLoading(true);
     e.preventDefault();
     const passwordData = {
       oldPassword: oldPassword,
       newPassword: newPassword,
     };
     if (newPassword !== confirmPassword) {
+      setButtonLoading(false);
       return setError(`Password doesn't matched with each other!`);
     } else {
+      setButtonLoading(false);
       setError("");
     }
     Swal.fire({
@@ -38,6 +42,7 @@ const ChangePassowrd = () => {
           .put(`/user/password-change`, passwordData, { withCredentials: true })
           .then((res) => {
             if (res.data.success === true) {
+              setButtonLoading(false);
               Swal.fire({
                 title: "SuccesFull",
                 text: res?.data?.message,
@@ -50,6 +55,7 @@ const ChangePassowrd = () => {
             }
           })
           .catch((error) => {
+            setButtonLoading(false);
             return toast.error(error.response.data.message);
           });
       }
@@ -164,10 +170,15 @@ const ChangePassowrd = () => {
             <p className="pt-2 text-xl text-red-500">{error && error} </p>
           )}
           <button
+            disabled={buttonLoading}
             type="submit"
-            className={`w-[95%] h-[40px] border hover:bg-transparent hover:border-[#3a24db] text-center hover:text-[#3a24db] rounded-[3px] mt-8 cursor-pointer bg-[#3a24db] text-white duration-200`}
+            className={`w-[95%] disabled:cursor-not-allowed h-[40px] border hover:bg-transparent hover:border-[#3a24db] text-center hover:text-[#3a24db] rounded-[3px] mt-8 cursor-pointer bg-[#3a24db] text-white duration-200`}
           >
-            Update
+            {buttonLoading ? (
+              <div className="border-gray-300 h-8 w-8 animate-spin rounded-full border-4 border-t-blue-600" />
+            ) : (
+              "Update"
+            )}
           </button>
         </form>
       </div>

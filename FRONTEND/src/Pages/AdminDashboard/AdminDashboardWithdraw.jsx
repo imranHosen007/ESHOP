@@ -10,7 +10,7 @@ const AdminDashboardWithdraw = () => {
   const axiosPublic = useAxiosPublic();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage] = useState(5);
-
+  const [buttonLoading, setButtonLoading] = useState(false);
   const newTotalPage = [];
   // ------Pagination---------
   const totalPage = Math.ceil(withdrawData.length / itemPerPage);
@@ -36,6 +36,7 @@ const AdminDashboardWithdraw = () => {
   };
   // ---------Handle-Function------
   const handleUpdate = (data) => {
+    setButtonLoading(true);
     Swal.fire({
       title: "Are you sure?",
       text: "Accepet Payment WithDraw",
@@ -54,6 +55,7 @@ const AdminDashboardWithdraw = () => {
           )
           .then((res) => {
             if (res?.data?.success) {
+              setButtonLoading(false);
               const updatedWithdraw = withdrawData.map((withdraw) => {
                 return withdraw._id === data._id
                   ? { ...withdraw, status: "succeed" }
@@ -63,7 +65,10 @@ const AdminDashboardWithdraw = () => {
               toast.success(`Payment Succed `);
             }
           })
-          .catch((error) => toast.error(error?.data?.response?.message));
+          .catch((error) => {
+            setButtonLoading(false);
+            toast.error(error?.data?.response?.message);
+          });
       }
     });
   };
@@ -135,6 +140,7 @@ const AdminDashboardWithdraw = () => {
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button
+                          disabled={buttonLoading}
                           onClick={() => handleUpdate(user)}
                           className="inline-flex items-center gap-2 px-2 py-1 font-semibold text-white bg-green-600 rounded-md disabled:bg-slate-500"
                         >
